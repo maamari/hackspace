@@ -1,6 +1,6 @@
 from .conf import lcdm_params
 from classy import Class
-
+import numpy as np
 
 def get_lcdm_pk(k):
     """Returns theoretical p(k) at z=0 given k values with given cosmo params
@@ -37,25 +37,11 @@ def get_theory_pk(k, params):
 
     # initialize class
     cosmo = Class()
-
-    # set the class parameters
-    # cosmo.set(
-    #     {
-    #         "output": "mPk",
-    #         "P_k_max_1/Mpc": 10.0,
-    #         "omega_b": params["omega_b"],
-    #         "omega_cdm": params["omega_cdm"],
-    #         "h": params["h"],
-    #         "A_s": params["A_s"],
-    #         "n_s": params["n_s"],
-    #         "tau_reio": params["tau_reio"],
-    #     }
-    # )
-    cosmo.set({"output": "mPk", "P_k_max_1/Mpc": 10.0, **params})
+    cosmo.set({"output": "mPk", **params})
 
     # run class
     cosmo.compute()
 
     # calculate Pk at all k values (note the normalization for k and P_k)
     h = params["h"]
-    return [cosmo.pk(kk * h, 0) * h ** 3 for kk in k]
+    return np.array([cosmo.pk(kk * h, 0) * h ** 3 for kk in k])

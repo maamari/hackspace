@@ -1,9 +1,12 @@
 import numpy as np
 from .data import get_data_transfer_function
+from .theory import *
+from .conf import idm_params
+
 from scipy.optimize import minimize
 
 
-def model(k, alpha, beta, gamma):
+def model(k, sigma0):
     """Returns values of alpha-beta-gamma model at given k values
 
     Parameters
@@ -13,13 +16,15 @@ def model(k, alpha, beta, gamma):
     alpha, beta, gamma : float
         Parameters of model
     """
+    
+    print(sigma0)
+    idm_params['sigma_dmeff']=sigma0
+    TkIDM = get_theory_pk(k,idm_params)/get_lcdm_pk(k)
+  
+    return TkIDM
 
-    T = (1 + (alpha * k) ** beta) ** gamma
 
-    return T
-
-
-def residuals(pars, data):
+def residuals(sigma0, data):
     """Returns data - model for given values of parameters
 
     Parameters
@@ -31,10 +36,8 @@ def residuals(pars, data):
         Data to be compared with model.
     """
 
-    alpha, beta, gamma = pars
-
-    mod = model(data.x, alpha, beta, gamma)
-    res = data.y - mod
+    mod = model(data.x, sigma0)
+    res = data.y-mod
 
     return res
 
